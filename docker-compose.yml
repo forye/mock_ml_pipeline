@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  daily_sensor_chunker:
+    build:
+      context: ./daywise_sensorwise_chunker
+    volumes:
+      - data_volume:/data
+
+  feature_creator:
+    build:
+      context: ./feature_creator
+    volumes:
+      - data_volume:/data
+
+  clustering_model:
+    build:
+      context: ./clustering_model/train
+    volumes:
+      - data_volume:/data
+
+  predict_model:
+    build:
+      context: ./clustering_model/predict
+    volumes:
+      - data_volume:/data
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pa55w0rd
+      POSTGRES_DB: BeeHeroTask
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  airflow:
+    image: apache/airflow:latest
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@postgres:5432/airflow
+    ports:
+      - "8080:8080"
+    volumes:
+      - airflow_data:/usr/local/airflow
+      - ./airflow_dags:/usr/local/airflow/dags
+      - data_volume:/data
+volumes:
+  data_volume:
+  postgres_data:
+  airflow_data:
