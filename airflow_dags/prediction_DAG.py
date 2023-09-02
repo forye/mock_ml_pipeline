@@ -6,8 +6,8 @@ with DAG(
     'sensor_data_pipeline',
     description='Sensor Data Processing Pipeline',
     # schedule_interval=None,
-    start_date=days_ago(1),
-    catchup=False,
+    # start_date=days_ago(1),
+    # catchup=False,
     tags=['prediction'],
 ) as dag:
 
